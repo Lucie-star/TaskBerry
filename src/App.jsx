@@ -521,17 +521,17 @@ export default function App() {
           100% { opacity: 0; transform: translateY(-20px) scale(0.5); }
         }
 
-         /* ===== Berry gentle swing ===== */
+         /*  Berry gentle swing + breathing */
         @keyframes berrySwingLeft {
-          0% { transform: rotate(-6deg); }
-          50% { transform: rotate(6deg); }
-          100% { transform: rotate(-6deg); }
+          0% { transform: rotate(-6deg) scale(1); }
+          50% { transform: rotate(6deg) scale(1.1); }
+          100% { transform: rotate(-6deg) scale(1); }
         }
 
         @keyframes berrySwingRight {
-          0% { transform: rotate(6deg); }
-          50% { transform: rotate(-6deg); }
-          100% { transform: rotate(6deg); }
+          0% { transform: rotate(6deg) scale(1); }
+          50% { transform: rotate(-6deg) scale(1.1); }
+          100% { transform: rotate(6deg) scale(1); }
         }
 
         /* ===== Star full rotation ===== */
