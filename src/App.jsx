@@ -4,8 +4,8 @@
 // 1. Install Node.js: https://nodejs.org
 // 2. Open VS Code
 // 3. Open a terminal and run:
-//    npm create vite@latest uni-helper -- --template react  (I later changed the folder name to TaskBerry)
-// 4. cd uni-helper
+//    npm create vite@latest TaskBerry -- --template react 
+// 4. cd TaskBerry
 // 5. npm install
 // 6. Install confetti library: npm install canvas-confetti
 // 7. Code in src/App.jsx
@@ -353,7 +353,8 @@ export default function App() {
             height: "auto",
             marginRight:20, 
             marginTop:20,
-            animation: "berrySwingLeft 1.5s ease-in-out infinite" 
+            animation: "berrySwingLeft 1.5s ease-in-out infinite",
+            opacity: 0.8
             }} 
           />
         <img 
@@ -373,7 +374,8 @@ export default function App() {
             height: "auto", 
             marginLeft:20, 
             marginTop:20,
-            animation: "berrySwingRight 1.5s ease-in-out infinite"
+            animation: "berrySwingRight 1.5s ease-in-out infinite",
+            opacity: 0.8
           }} 
         />
       </div>
