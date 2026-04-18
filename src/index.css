@@ -1,0 +1,35 @@
+/* Remove the browser’s default white border */
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+/*tells the browser: load this font file ad call it QuiteMagical*/
+@font-face {
+  font-family: 'PixelWarden';
+  src: url('./assets/fonts/PixelWarden.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'wizzta';
+  src: url('./assets/fonts/wizzta.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Hola Sophia';
+  src: url('./assets/fonts/Hola Sophia.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Wizard';
+  src: url('./assets/fonts/Wizard.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
