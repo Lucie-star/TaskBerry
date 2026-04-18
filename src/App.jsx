@@ -19,6 +19,7 @@ import TaskBerry from "./assets/TaskBerry.svg"; //title svg import
 import Star from "./assets/Star.svg"; //star icon import 
 import LeftBerry from "./assets/LeftBerry.svg"; //left berry icon import
 import RightBerry from "./assets/RightBerry.svg"; //right berry icon import   
+import catSprite from "./assets/cat-sprite.png"; //cat sprite sheet import
 
 export default function App() {
   // ========================
@@ -541,6 +542,23 @@ export default function App() {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
         }
+
+        /* ===== Cat sprite animation ===== */
+        .catSprite {
+          width: 1280px;                
+          height: 720px;                
+          background-image: url(${catSprite});
+          background-repeat: no-repeat;
+          background-size: auto 100%;
+          animation: catRun 3s steps(44) infinite; /* <- frame count (there's 44 frames) */
+          transform: scale(0.15); /* shrink to 15% */
+          transform-origin: top left; 
+        }
+
+        @keyframes catRun {
+          from { background-position: 0 0; }
+          to { background-position: -56320px 0; } /* frameWidth × frameCount 
+        }
       `}</style>
     </div>
   );
@@ -582,22 +600,34 @@ function AddTaskForm({ onAdd }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ textAlign: "center", marginTop: 20}}>
-    <input
-      style={inputStyle}
-      type="text"
-      placeholder="Task Name"
-      value={name}
-      onChange={e => setName(e.target.value)}
-    />
+   <div style={{ 
+      display: "flex", 
+      justifyContent: "center", 
+      alignItems: "center",
+    }}>
+      <form onSubmit={handleSubmit} style={{ textAlign: "center", marginTop: 20, marginLeft: 70}}>
+        <input
+          style={inputStyle}
+          type="text"
+          placeholder="Task Name"
+          value={name}
+          onChange={e => setName(e.target.value)}
+        />
 
-    <input
-      style={inputStyle}
-      type="date"
-      value={deadline}
-      onChange={e => setDeadline(e.target.value)}
-    />
-      <button type="submit" style={buttonStyle("#f3feb0")}>Add Task</button>
-    </form>
+        <input
+          style={inputStyle}
+          type="date"
+          value={deadline}
+          onChange={e => setDeadline(e.target.value)}
+        />
+        
+        <button type="submit" style={buttonStyle("#f3feb0")}>Add Task</button>
+      </form>
+        
+        {/* Cat sprite */} 
+        <div style={{ width: 100, height: 100 }}>
+          <div className="catSprite" />
+        </div>
+      </div>
   );
 }
