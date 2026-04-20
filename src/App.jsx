@@ -20,6 +20,7 @@ import Star from "./assets/Star.svg"; //star icon import
 import LeftBerry from "./assets/LeftBerry.svg"; //left berry icon import
 import RightBerry from "./assets/RightBerry.svg"; //right berry icon import   
 import catSprite from "./assets/cat-sprite.png"; //cat sprite sheet import
+import book_sheet from "./assets/book_sheet.png"; //book sprite sheet import
 
 export default function App() {
   // ========================
@@ -499,15 +500,65 @@ export default function App() {
           }}
           onMouseDown={onMouseDown}
         >
-          <h3 style={{fontFamily: "wizzta", fontSize: 25, textAlign: "center"}}>Focus: {activeTask.name}</h3>
-          <h2 style={{fontFamily: "wizzta", fontSize: 25, textAlign: "center"}}>{minutes}:{seconds}</h2>
-          <div>
-            {timerRunning ? (
-              <button onClick={pauseTimer} style={buttonStyle("#ffa600dc")}>Pause</button>
-            ) : (
-              <button onClick={() => setTimerRunning(true)} style={buttonStyle("#32cd32e8")}>Resume</button>
-            )}
-            <button onClick={stopTimer} style={buttonStyle("#ff4400e2")}>Stop</button>
+          <div style={{ position: "relative"}}> {/*relative positioning allows the stars
+            to be positioned absolutely within this container, so 
+            they move together when dragging the timer*/}
+
+            <img
+              src={Star}
+              alt="Star"
+              style={{
+                position: "absolute",
+                top: -28,
+                left: -37,
+                width: 40,
+                height: "auto",
+                pointerEvents: "none",
+                animation: "floaty 3s ease-in-out infinite"
+              }}
+            />
+
+            <img
+              src={Star}
+              alt="Star"
+              style={{
+                position: "absolute",
+                top: -10,
+                left: -23,
+                width: 30,
+                height: "auto",
+                pointerEvents: "none",
+                animation: "floaty 3s ease-in-out infinite",
+                animationDelay: "0.3s"
+              }}
+            />
+
+            {/* Book Sprite */} 
+            <div 
+              style={{ 
+                position: "absolute",
+                top: -40,
+                right: -65,
+                width: 90, 
+                height: 100,
+                overflow: "hidden",
+                pointerEvents: "none",
+                animation: "floaty 3.2s ease-in-out infinite"
+              }}
+            >
+              <div className="bookSprite" />
+            </div>
+
+            <h3 style={{fontFamily: "wizzta", fontSize: 25, textAlign: "center"}}>FOCUSING...</h3>
+            <h2 style={{fontFamily: "wizzta", fontSize: 25, textAlign: "center"}}>{minutes}:{seconds}</h2>
+            <div>
+              {timerRunning ? (
+                <button onClick={pauseTimer} style={buttonStyle("#ffa600dc")}>Pause</button>
+              ) : (
+                <button onClick={() => setTimerRunning(true)} style={buttonStyle("#32cd32e8")}>Resume</button>
+              )}
+              <button onClick={stopTimer} style={buttonStyle("#ff4400e2")}>Stop</button>
+            </div>
           </div>
         </div>
       )}
@@ -557,8 +608,33 @@ export default function App() {
 
         @keyframes catRun {
           from { background-position: 0 0; }
-          to { background-position: -56320px 0; } /* frameWidth × frameCount 
+          to { background-position: -56320px 0; } /* frameWidth × frameCount */
         }
+
+        /* ===== Book sheet animation ===== */
+        .bookSprite {
+          width: 64px;                
+          height: 64px;                
+          background-image: url(${book_sheet});
+          background-repeat: no-repeat;
+          background-size: auto 100%;
+          animation: bookRun 1.5s steps(8) infinite; /* <- frame count (there's 8 frames) */
+          transform: scale(0.8); /* shrink to 80% */
+          transform-origin: top left; 
+        }
+
+        @keyframes bookRun {
+          from { background-position: 0 0; }
+          to { background-position: -512px 0; } /* frameWidth × frameCount */
+        }
+
+        /* ===== Gentle floating animation ===== */
+        @keyframes floaty {
+          0% { transform: translateY(0); }
+          50% { transform: translateY(-6px); }
+          100% { transform: translateY(0); }
+        }
+
       `}</style>
     </div>
   );
