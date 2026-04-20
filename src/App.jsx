@@ -162,7 +162,7 @@ export default function App() {
     delete notificationRef.current[id];
   }
 
-  function startFocus(task, durationMinutes = 0.1) { {/*change to 50 later */}
+  function startFocus(task, durationMinutes = 50) { {/*change to 50 later */}
     setActiveTask(task);
     setTimeLeft(durationMinutes * 60);
     setTimerRunning(true);
@@ -499,7 +499,7 @@ export default function App() {
           }}
           onMouseDown={onMouseDown}
         >
-          <h3 style={{fontFamily: "wizzta", fontSize: 25, textAlign: "center"}}>FOCUS: {activeTask.name}</h3>
+          <h3 style={{fontFamily: "wizzta", fontSize: 25, textAlign: "center"}}>Focus: {activeTask.name}</h3>
           <h2 style={{fontFamily: "wizzta", fontSize: 25, textAlign: "center"}}>{minutes}:{seconds}</h2>
           <div>
             {timerRunning ? (
