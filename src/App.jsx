@@ -22,7 +22,8 @@ import RightBerry from "./assets/RightBerry.svg"; //right berry icon import
 import catSprite from "./assets/cat-sprite.png"; //cat sprite sheet import
 import book_sheet from "./assets/book_sheet.png"; //book sprite sheet import
 
-function Fireflies() {
+function Fireflies() { //defines a React component for the animated fireflies 
+// in the background (resusable UI block)
   const [fireflies] = useState(() =>
     Array.from({ length: 25 }).map(() => ({
       left: Math.random() * 100,
