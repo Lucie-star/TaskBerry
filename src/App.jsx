@@ -22,6 +22,36 @@ import RightBerry from "./assets/RightBerry.svg"; //right berry icon import
 import catSprite from "./assets/cat-sprite.png"; //cat sprite sheet import
 import book_sheet from "./assets/book_sheet.png"; //book sprite sheet import
 
+function Fireflies() {
+  const [fireflies] = useState(() =>
+    Array.from({ length: 25 }).map(() => ({
+      left: Math.random() * 100,
+      delay: Math.random() * 10,
+      duration: 12 + Math.random() * 10,
+      size: 4 + Math.random() * 8
+    }))
+  );
+
+  return (
+    <>
+      {fireflies.map((f, i) => (
+        <div
+          key={i}
+          className="firefly"
+          style={{
+            left: `${f.left}%`,
+            bottom: "-20px",
+            width: f.size,
+            height: f.size,
+            animationDuration: `${f.duration}s`,
+            animationDelay: `${f.delay}s`,
+          }}
+        />
+      ))}
+    </>
+  );
+}
+
 export default function App() {
   // ========================
   // STATE
@@ -339,12 +369,19 @@ export default function App() {
     <div style={{ 
       padding: 20, 
       minHeight: "100vh",
+      position: "relative",
+      overflow: "hidden", 
       // ================= BACKGROUND IMAGE (COVER) =================
       backgroundImage: `url(${background})`, // uses imported PNG
       backgroundSize: "cover",              // makes image fill the screen properly
       backgroundPosition: "center",         // keeps the center of image always visible
       backgroundRepeat: "no-repeat",        // prevents tiling
     }}> 
+
+      <Fireflies /> {/*Animated fireflies in the background*/}
+      
+      <div style={{ position: "relative", zIndex: 2 }}>
+
     {/*Title elements */}
       <div style={{ display: "flex", justifyContent: "center", alignItems: "center"}}>
         <img 
@@ -537,7 +574,7 @@ export default function App() {
             <div 
               style={{ 
                 position: "absolute",
-                top: -40,
+                top: -44.5,
                 right: -65,
                 width: 90, 
                 height: 100,
@@ -635,8 +672,33 @@ export default function App() {
           100% { transform: translateY(0); }
         }
 
+        /* ===== Fireflies background ===== */
+
+        .firefly {
+          position: absolute;
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: radial-gradient(circle, #fff 0%, #fffbd3 30%, #fffabd 40%, transparent 80%);
+          opacity: 0.8;
+          filter: blur(2px);
+          pointer-events: none;
+          animation: floatFirefly linear infinite;
+          z-index: 1;
+        }
+
+        @keyframes floatFirefly {
+          from {
+            transform: translateY(0px) translateX(0px);
+          }
+          to {
+            transform: translateY(-120vh) translateX(40px);
+          }
+        }
+
       `}</style>
     </div>
+  </div>
   );
 }
 
