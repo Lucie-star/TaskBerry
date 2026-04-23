@@ -12,7 +12,13 @@
 // 8. Run: npm run dev
 // 9. Open the local URL in browser (usually http://localhost:5173)
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react"; // importing React hooks: 
+// useState for managing state and storing data (like tasks, timer, streaks),
+// useEffect runs code when something changes, like saving to localStorage or 
+// updating timer, 
+// useRef store values that don't trigger re-renders when updated 
+// (like timer interval ID or notification flags)
+
 import confetti from "canvas-confetti"; // library to trigger confetti animation
 import background from "./assets/background.png"; //vertical background import 
 import TaskBerry from "./assets/TaskBerry.svg"; //title svg import 
@@ -24,28 +30,48 @@ import book_sheet from "./assets/book_sheet.png"; //book sprite sheet import
 
 function Fireflies() { //defines a React component for the animated fireflies 
 // in the background (resusable UI block)
-  const [fireflies] = useState(() =>
-    Array.from({ length: 25 }).map(() => ({
-      left: Math.random() * 100,
-      delay: Math.random() * 10,
-      duration: 12 + Math.random() * 10,
-      size: 4 + Math.random() * 8
-    }))
-  );
+
+//create state called fireflies, [] means we are NOT updating it later 
+//()=>{..} is a lazy initializer, tells React to only run the code on startup 
+  const [fireflies] = useState(() => 
+    Array.from({ length: 25 }).map(() => ({ //Creates an array of 25 fireflies with random properties for animation
+      left: Math.random() * 100, //random horizontal position (1-100%) 
+      delay: Math.random() * 10, //random delay before animation starts (0-10s) to create a natural staggered effect
+      duration: 12 + Math.random() * 10, //random animation speed (12-22s) to make some fireflies move faster than others
+      size: 4 + Math.random() * 8 //random size (4-12px) to add variety to the fireflies
+      //Math.random() generates a random decimal number between 0 (inclusive) and 1 (exclusive)
+})));
 
   return (
-    <>
-      {fireflies.map((f, i) => (
+    <> {/*React fragment to return multiple elements without adding 
+    extra wrapper element (like a <div>) to the DOM, used when we just need to group
+    elements but don't want to affect layout or HTML structure (acts as an invisible
+    wrapper*/}
+      {fireflies.map((f, i) => ( //Loops through all fireflies, f=firefly object,
+      //i=index
+      //map() creates a new array by transforming each element of the original 
+      // array using the provided function, in this case we are transforming each 
+      // firefly object into a <div> element with specific styles for animation 
+      // and appearance
         <div
-          key={i}
+          key={i} //React requires a unique key for each element in a list to help 
+          // it efficiently update and manage the DOM when the list changes.
+          //key is a special prop in React that helps identify which 
+          // items have changed, are added, or removed, acts like a unique ID for each
+          // item. Using index as key is generally not recommended if the list can 
+          // change order or have items added/removed, but in this case since 
+          // fireflies are static and only created once on startup, it's acceptable
           className="firefly"
           style={{
-            left: `${f.left}%`,
-            bottom: "-20px",
-            width: f.size,
-            height: f.size,
-            animationDuration: `${f.duration}s`,
-            animationDelay: `${f.delay}s`,
+            left: `${f.left}%`, //position firefly randomly horizontally
+            bottom: "-20px", //start slightly below the bottom of the screen so 
+            // they float up into view
+            width: f.size, //random width based on size property
+            height: f.size, //random height based on size property
+            animationDuration: `${f.duration}s`, //random animation duration for 
+            // floating up
+            animationDelay: `${f.delay}s`, //random delay before animation starts 
+            // to create a natural staggered effect
           }}
         />
       ))}
@@ -58,8 +84,7 @@ export default function App() {
   // STATE
   // ========================
 
-  // List of tasks, saved in localStorage so they persist across reloads
-  //()=>{..} is a lazy initializer, tells React to only run the code on startup 
+  // List of tasks, saved in localStorage so they persist across reloads 
   const [tasks, setTasks] = useState(() => { 
     const saved = localStorage.getItem("tasks"); //reading from browser's memory
     return saved ? JSON.parse(saved) : []; 
@@ -75,12 +100,6 @@ export default function App() {
 
   // Whether the focus timer is running
   const [timerRunning, setTimerRunning] = useState(false);
-
-  // Current streak of completed focus sessions
-  const [streak, setStreak] = useState(() => {
-    const saved = localStorage.getItem("streak");
-    return saved ? JSON.parse(saved) : 0; //returns saved if saved, otherwise return 0 
-  });
 
   // ========================
   // WEEKLY FOCUS TRACKING (resets every Monday)
