@@ -101,6 +101,11 @@ export default function App() {
   // Whether the focus timer is running
   const [timerRunning, setTimerRunning] = useState(false);
 
+  const [streak, setStreak] = useState(() => {
+    const saved = localStorage.getItem("streak");
+    return saved ? JSON.parse(saved) : 0;
+  });
+
   // ========================
   // WEEKLY FOCUS TRACKING (resets every Monday)
   // ========================
