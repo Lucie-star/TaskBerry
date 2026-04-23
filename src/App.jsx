@@ -109,23 +109,32 @@ export default function App() {
   function getMonday(date) { //input date parameter expects a Date object 
     const d = new Date(date); //creates a copy of the inputted date 
     const day = d.getDay();   //gets day of the week: 0 = Sunday, 1 = Monday, ..., 6 = Saturday
-    const diff = (day === 0 ? -6 : 1) - day; //gives how many days to move to reach monday
-    d.setDate(d.getDate() + diff); //updates the copy of the date to the monday date (26th to 22nd for example at midnight)
-    d.setHours(0, 0, 0, 0); //ensures all mondays are exactly the same time 00:00:00:000 (midnight)
+    const diff = (day === 0 ? -6 : 1) - day; //gives how many days to move to reach 
+    // monday (if sunday, use -6, otherwise, use 1, then subtract current day to get
+    // the difference)
+    d.setDate(d.getDate() + diff); //updates the copy of the date to the monday 
+    // date (26th to 22nd for example at midnight)
+    d.setHours(0, 0, 0, 0); //ensures all mondays are exactly the same time 
+    // 00:00:00:000 (midnight)
     return d; //returns the monday date 
   }
 
-  const [weeklyData, setWeeklyData] = useState(() => {
-    const saved = localStorage.getItem("weeklyFocus");
-    const currentMonday = getMonday(new Date()).toISOString(); //passes current date into getMonday then converts it to a string
+  const [weeklyData, setWeeklyData] = useState(() => { //stores weekly focus count
+    const saved = localStorage.getItem("weeklyFocus"); //load saved weekly progress
+    const currentMonday = getMonday(new Date()).toISOString(); //passes current date
+      // into getMonday then converts it to a string
     if (saved) {
       const parsed = JSON.parse(saved);
-      if (parsed.monday !== currentMonday) { //if saved data from different week, reset 
-        return { monday: currentMonday, count: 0 };
+      if (parsed.monday !== currentMonday) { //if saved data from different week, 
+      // reset 
+        return { monday: currentMonday, count: 0 }; //count is a property in a 
+        //JavaScript objects that we define to keep track of how many focus sessions
+        // completed this week
       }
       return parsed; //keep saved data if from the same week 
     }
-    return { monday: currentMonday, count: 0 }; //if nothing saved (first time using app, start fresh)
+    return { monday: currentMonday, count: 0 }; //if nothing saved (first time using
+    // app, start fresh)
   });
 
   // Ref to store timer interval so we can clear it
@@ -137,7 +146,7 @@ export default function App() {
   //Ref for progress circle position 
   const progressCircleRef = useRef(null);
 
-  // Draggable timer position state
+  // Draggable timer initial position state
   const [timerPos, setTimerPos] = useState({ x: 650, y: 690 });
 
   // Dragging state for timer popup
