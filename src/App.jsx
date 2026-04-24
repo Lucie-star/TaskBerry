@@ -344,7 +344,7 @@ export default function App() {
     if (diff <0) return "#a56363d8"; //overdue 
     if (diff < 3) return "#c68282d4"; //urgent
     if (diff <= 7) return "#d8ae61ce"; //medium priority
-    return "#aed4bfcc"; //safe 
+    return "#90b19fcc"; //safe 
   }
 
   // ========================
