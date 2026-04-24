@@ -193,27 +193,47 @@ export default function App() {
   // ========================
   useEffect(() => { //runs when timerRunning or activeTask changes (start, pause, 
   // stop, or new task)
-    if (!timerRunning || !activeTask) return; //stop if not running
+    if (!timerRunning || !activeTask) return; //stop if not running or no active task
 
-    timerRef.current = setInterval(() => {
-      setTimeLeft(prev => Math.max(prev - 1, 0));
+    //starts countdown loop that runs every second and decreases timeLeft by 
+    // 1 until it reaches 0, then clears
+    timerRef.current = setInterval(() => { //.current is a property where we can 
+    // store mutable values that persist across renders without causing re-renders 
+    // when updated (like timer interval ID)
+    // setInterval(() => { ... }, 1000); is a built-in JavaScript function
+    //that means "run this code every 1000 milliseconds (1 second)"
+      setTimeLeft(prev => Math.max(prev - 1, 0)); //Math.max(prev-1,0) ensures
+      //  timeLeft never goes below 0, prev is the previous value of timeLeft
     }, 1000);
 
+    //cleanup function to clear the interval when timer stops or component unmounts
+    //in other words, stops the repeating function created by setInterval 
     return () => clearInterval(timerRef.current);
-  }, [timerRunning, activeTask]);
+  }, [timerRunning, activeTask]); // dependency array that ensures that the effect
+// runs whenever timerRunning or activeTask changes (like when starting, pausing,
+// stopping the timer, or when a new task is set as active)
 
   // Watch for timeLeft reaching 0 to handle timer end
   useEffect(() => {
-    if (timeLeft === 0 && activeTask) {
-      setTimerRunning(false);
-      setStreak(s => s + 1);
-      setWeeklyData(prev => {
-        const currentMonday = getMonday(new Date()).toISOString();
+    if (timeLeft === 0 && activeTask) { //when timer hits zero: 
+      setTimerRunning(false); //stop timer 
+      setStreak(s => s + 1); //increase streak by 1, s is previous value of streak
+      //update weekly focus data
+      setWeeklyData(prev => { //prev +> {..} is a function passed into the setter 
+      // that receives the previous state value (prev) and returns the new state 
+      // value, used when new state depends on old state to ensure we are working
+      //  with the most up-to-date value
+
+      //if we are in a new week, start fresh with count of 1, otherwise, 
+      // increment the count for the current week
         if (prev.monday !== currentMonday) return { monday: currentMonday, count: 1 };
+        //{...prev} is the spread operator that creates a new object with all the
+        // properties of prev, then we override the count property to be prev.count
+        //  + 1
         return { ...prev, count: prev.count + 1 };
       });
-      triggerConfetti();
-      setActiveTask(null);
+      triggerConfetti(); //celebratory confetti animation
+      setActiveTask(null); //reset task 
     }
   }, [timeLeft, activeTask]);
 
@@ -221,15 +241,32 @@ export default function App() {
   // TASK FUNCTIONS
   // ========================
 
+  //creates a new task object with a unique ID, 
+  // name, deadline, and completed status, takes in name and deadline as parameters 
+  // from the form inputs and adds it to the tasks state array, also initializes 
+  // notification flags for the new task in the notificationRef to track which 
+  // notifications have been sent for this task
   function addTask(name, deadline) {
     const newTask = {
-      id: Date.now(),
-      name,
-      deadline,
-      completed: false
+      id: Date.now(), //unique ID based on current timestamp, not perfect but good
+      //  enough for this app
+      name, //shorthand for name: name 
+      deadline,  //shorthand for deadline: deadline
+      completed: false //every new task starts as not completed
     };
-    setTasks([...tasks, newTask]);
-    notificationRef.current[newTask.id] = { twoDays: false, fiveDays: false, tenHalfDays: false };
+    setTasks([...tasks, newTask]); //take all existing tasks, and add the new one 
+    //at the end of the array, creating a new array to trigger React re-render
+    notificationRef.current[newTask.id] = {  //dynamic key access to create a new 
+    // entry in the notificationRef object for this task's ID (store notification flags
+    //for this specific task)
+
+    //tracks whether notifications have been sent for this task as it approaches 
+    // its deadline, we use these flags to ensure we only send each 
+    // notification once per task
+      twoDays: false, 
+      fiveDays: false, 
+      tenHalfDays: false 
+    };
   }
 
   function deleteTask(id) {
@@ -313,7 +350,8 @@ export default function App() {
   // ========================
   // SORT TASKS BY DEADLINE
   // ========================
-  const sortedTasks = [...tasks].sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
+  const sortedTasks = [...tasks].sort((a, b) => new Date(a.deadline) - 
+  new Date(b.deadline));
 
   // ========================
   // TIMER DISPLAY VARIABLES
@@ -366,7 +404,7 @@ export default function App() {
   }, [completedTasks, tasks.length]);
 
   const totalTasks = tasks.length > 0 ? tasks.length : totalTasksEver;
-  const progressPercent = totalTasks === 0 ? 0 : (completedTasks / totalTasks) * 100;
+  const progressPercent = totalTasks === 0 ? 0 : (completedTasks / totalTasks)*100;
 
   // ========================
   // BROWSER NOTIFICATIONS LOGIC
@@ -395,7 +433,8 @@ export default function App() {
           } else if (daysLeft < 5 && !notified.fiveDays && !notified.twoDays) {
             new Notification(`Task due in less than 5 days: ${task.name}`);
             notified.fiveDays = true;
-          } else if (daysLeft < 10.5 && !notified.tenHalfDays && !notified.twoDays && !notified.fiveDays) {
+          } else if (daysLeft < 10.5 && !notified.tenHalfDays && !notified.twoDays 
+            && !notified.fiveDays) {
             new Notification(`Task due in less than 1.5 weeks: ${task.name}`);
             notified.tenHalfDays = true;
           }
@@ -417,8 +456,8 @@ export default function App() {
       overflow: "hidden", 
       // ================= BACKGROUND IMAGE (COVER) =================
       backgroundImage: `url(${background})`, // uses imported PNG
-      backgroundSize: "cover",              // makes image fill the screen properly
-      backgroundPosition: "center",         // keeps the center of image always visible
+      backgroundSize: "cover",         // makes image fill the screen properly
+      backgroundPosition: "center",   // keeps the center of image always visible
       backgroundRepeat: "no-repeat",        // prevents tiling
     }}> 
 
@@ -782,7 +821,7 @@ function AddTaskForm({ onAdd }) {
   };
 
   return (
-   <div style={{ 
+    <div style={{ 
       display: "flex", 
       justifyContent: "center", 
       alignItems: "center",

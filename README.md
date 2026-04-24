@@ -1,4 +1,5 @@
 <!-- 
+IN VS CODE: 
 To open markdwon file preview: Ctrl + Shift + V 
 To open side-by-side: Ctrl + K, then V
 -->
