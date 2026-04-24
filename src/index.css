@@ -5,7 +5,8 @@ html, body, #root {
   height: 100%;
 }
 
-/*tells the browser: load this font file ad call it QuiteMagical*/
+/*tells the browser: load this font file ad call it 
+PixelWardenl*/
 @font-face {
   font-family: 'PixelWarden';
   src: url('./assets/fonts/PixelWarden.ttf') format('truetype');
