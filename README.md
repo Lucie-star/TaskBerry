@@ -1,16 +1,82 @@
-# React + Vite
+<!-- 
+To open markdwon file preview: Ctrl + Shift + V 
+To open side-by-side: Ctrl + K, then V
+-->
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# 🍓 TaskBerry — Simple Study Task Manager
 
-Currently, two official plugins are available:
+TaskBerry is a cozy, minimalistic task management web app built with **React** and **Vite** to help students stay focused and organized while studying or working, mainly meant for desktop/laptop use.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+It lets you:
+- Add and remove tasks
+- Track your progress
+- Use a built-in study timer
+- Stay motivated with streaks and visual feedback
+- Boost mood and motivation with cute animations
 
-## React Compiler
+This project was built as a learning project to practice modern web development with React.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## 🚀 Live Web App
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+👉 *https://task-berry-rho.vercel.app/*
+
+---
+
+## 🛠 Built With
+
+- React
+- Vite
+- JavaScript
+- CSS
+- canvas-confetti (for celebrations 🎉)
+
+---
+
+## 📸 Features
+
+- ✅ Task list management
+- ⏱ Study timer
+- 🔥 Weekly Focus streak tracking
+- 🎉 Confetti when completing tasks
+- 📱 Works on desktop and mobile (mobile layout still in progress)
+
+---
+
+## 💻 Run This Project Locally
+
+### 1. Install Node.js
+Download and install Node from: https://nodejs.org
+
+### 2. Clone the repository
+```bash
+git clone https://github.com/Lucie-star/TaskBerry.git
+cd TaskBerry
+
+#Install dependencies 
+npm install 
+
+#start the development server
+npm run dev 
+```
+
+### Open the link in the terminal 
+Usually http://localhost:5173 or somthing similar, in your browser. 
+
+## 📦 General Project Structure 
+```bash
+TaskBerry/
+├─ src/
+│ ├─ App.jsx → Main app file with React components and app logic
+│ ├─ index.css → Global styles, fonts, and layout
+│ ├─ assets/ → Images, SVGs, backgrounds, fonts
+├─ package.json
+└─ vite.config.js
+ ```
+
+## Author  
+**Lucie Wang**
+
+## 📄 License
+This project is open source and free to use. 

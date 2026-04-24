@@ -145,7 +145,8 @@ export default function App() {
   // Ref to store timer interval so we can clear it
   const timerRef = useRef(null);
 
-  // Ref for storing notification flags for tasks
+  // Ref for storing notification state per task (to avoid triggering notifications
+  //  multiple times for the same task)
   const notificationRef = useRef({});
 
   //Ref for progress circle position 
@@ -166,15 +167,23 @@ export default function App() {
   // ========================
   // SAVE TASKS TO LOCAL STORAGE
   // ========================
-  useEffect(() => {
-    localStorage.setItem("tasks", JSON.stringify(tasks)); 
-    if (tasks.length > totalTasksEver) setTotalTasksEver(tasks.length);
-  }, [tasks]);
+  useEffect(() => { //lest React component run "side effects" (anything that goes 
+  // outside React's rendering system like API calls, event listeners..etc.) 
+  // after React updates the screen   
+    localStorage.setItem("tasks", JSON.stringify(tasks)); //save tasks as string
+    //updates max tasks count
+    if (tasks.length > totalTasksEver) setTotalTasksEver(tasks.length); 
+  }, [tasks]); //dependency array [tasks] means this effect runs only when "tasks" 
+  // changes
 
+  //saves streak whenever it changes 
   useEffect(() => {
     localStorage.setItem("streak", JSON.stringify(streak));
   }, [streak]);
 
+  ///saves weekly focus progress whenever it changes, also ensures it resets on a new 
+  // week by checking the monday date in the saved data (see weeklyData state 
+  // initializer)
   useEffect(() => {
     localStorage.setItem("weeklyFocus", JSON.stringify(weeklyData));
   }, [weeklyData]);
@@ -182,8 +191,9 @@ export default function App() {
   // ========================
   // TIMER LOGIC
   // ========================
-  useEffect(() => {
-    if (!timerRunning || !activeTask) return;
+  useEffect(() => { //runs when timerRunning or activeTask changes (start, pause, 
+  // stop, or new task)
+    if (!timerRunning || !activeTask) return; //stop if not running
 
     timerRef.current = setInterval(() => {
       setTimeLeft(prev => Math.max(prev - 1, 0));
