@@ -1,5 +1,5 @@
 // ===============================
-// HOW TO SET THIS UP THE FIRST TIME 
+// HOW I SET UP THIS APP THE FIRST TIME 
 // ===============================
 // 1. Install Node.js: https://nodejs.org
 // 2. Open VS Code
@@ -195,8 +195,6 @@ export default function App() {
   // stop, or new task)
     if (!timerRunning || !activeTask) return; //stop if not running or no active task
 
-    //starts countdown loop that runs every second and decreases timeLeft by 
-    // 1 until it reaches 0, then clears
     timerRef.current = setInterval(() => { //.current is a property where we can 
     // store mutable values that persist across renders without causing re-renders 
     // when updated (like timer interval ID)
@@ -269,36 +267,56 @@ export default function App() {
     };
   }
 
-  function deleteTask(id) {
-    setTasks(tasks.filter(t => t.id !== id));
-    delete notificationRef.current[id];
+  function deleteTask(id) { //id is the ID of the task that we want to delete, 
+  // passed in from the delete button on each task
+    
+    //filter creates a new array (React requires immutable updates) with only the 
+    // items that pass a condition, in this case we keep all tasks where the task's 
+    // ID is not equal to the ID of the task we want to delete, effectively removing
+    // it from the list
+    setTasks(tasks.filter(t => t.id !== id)); 
+    delete notificationRef.current[id]; //remove the notification flags for this 
+    // task since it's deleted
   }
 
-  function startFocus(task, durationMinutes = 50) { {/*change to 50 later */}
-    setActiveTask(task);
-    setTimeLeft(durationMinutes * 60);
-    setTimerRunning(true);
+  function startFocus(task, durationMinutes = 50) { //starts the focus timer for a 
+  // given task, default duration is 50 minutes
+    setActiveTask(task); // set the task we are focusing on as the activeTask, 
+    // which triggers the timer useEffect
+    setTimeLeft(durationMinutes * 60); //convert minutes to seconds for the timer
+    setTimerRunning(true); //start the timer, which triggers the useEffect that 
+    // handles the countdown since the useEffect listens to [timerRunning, activeTask],
+    //so when timerRunning becomes true and activeTask is set, the timer starts 
+    // counting down every second
   }
 
-  function pauseTimer() {
+  function pauseTimer() { //pauses the focus timer without resetting the time left 
+  // or active task, allowing the user to resume later
     setTimerRunning(false);
   }
 
   function stopTimer() {
     setTimerRunning(false);
-    setTimeLeft(0);
+    setTimeLeft(0); 
     setActiveTask(null);
   }
 
   function completeTask(id) {
+    //if the task is the one we clicked, then mark it as completed, otherwise keep 
+    // it the same, creates a new array of tasks with the updated completed
+    //  status for the specified task. Otherwise, tasks remain unchanged.
+    //complete: true is just a flag to track whether as task is done. 
     setTasks(prev => prev.map(t => t.id === id ? { ...t, completed: true } : t));
     triggerConfetti();
     createSparkles(id);
 
+    //calculates remaining tasks by keeping only tasks that are not the completed 
+    // one and not already completed, then checks how many are left, if 0, reset 
+    // the whole list after a short delay 500 ms to allow confetti to show
     const remaining = tasks.filter(t => t.id !== id && !t.completed).length;
     if (remaining === 0) {
       setTimeout(() => {
-        setTasks([]);
+        setTasks([]); //replace the tasks arry with an empty array to reset the list
         setTotalTasksEver(0);
       }, 500);
     }
@@ -310,8 +328,9 @@ export default function App() {
   function triggerConfetti() {
     confetti({
       particleCount: 100,
-      spread: 70,
-      origin: { y: 0.6 },
+      spread: 70, //how wide explosion is, bigger number = wider
+      origin: { y: 0.6 }, //where the confetti starts, 0.6 means 60% down from 
+      // the top of the screen
       colors: ["#ff69b4", "#32cd32", "#ffa500", "#ff4c4c", "#8a2be2"],
     });
   }
@@ -321,15 +340,21 @@ export default function App() {
   // ========================
   function createSparkles(taskId) {
     const newSparkles = [];
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 5; i++) { //creates 5 sparkles with random positions 
+    // within the progress bar area, we generate random positions within the 
+    // progress bar container (left: 0-100%, top: 0-20px) to create a burst of 
+    // sparkles whenever a task is completed
       newSparkles.push({
         id: Date.now() + Math.random(),
         left: Math.random() * 100,
         top: Math.random() * 20,
       });
     }
-    setSparkles(prev => [...prev, ...newSparkles]);
+    setSparkles(prev => [...prev, ...newSparkles]); //add sparkles to state to 
+    // trigger rendering them on the screen
     setTimeout(() => {
+      //remove the sparkles after 800ms, which is the duration of the sparkle 
+      // animation
       setSparkles(prev => prev.filter(s => !newSparkles.includes(s)));
     }, 800);
   }
@@ -340,7 +365,8 @@ export default function App() {
   function getPriorityColor(deadline) {
     const today = new Date();
     const dueDate = new Date(deadline);
-    const diff = (dueDate - today) / (1000 * 60 * 60 * 24);
+    const diff = (dueDate - today) / (1000 * 60 * 60 * 24); //difference in days 
+    // between today and deadline in milliseconds converted to days
     if (diff <0) return "#a56363d8"; //overdue 
     if (diff < 3) return "#c68282d4"; //urgent
     if (diff <= 7) return "#d8ae61ce"; //medium priority
@@ -350,12 +376,23 @@ export default function App() {
   // ========================
   // SORT TASKS BY DEADLINE
   // ========================
+  //make a copy of the tasks array and sort it by deadline date, so that tasks
+  //  with the closest deadlines appear at the top of the list, we use new Date() 
+  // to convert the deadline strings into Date objects for accurate comparison
+  //  when sorting by date
+
+  //if a is earlier than b, return a negative number to sort a before b,
+  //  if a is later than b, return a positive number to sort b before a, 
+  // if they are the same, return 0
   const sortedTasks = [...tasks].sort((a, b) => new Date(a.deadline) - 
   new Date(b.deadline));
 
   // ========================
   // TIMER DISPLAY VARIABLES
   // ========================
+  // .padStart(2, "0") ensures that we always show 2 digits for minutes and seconds,
+  // adding a leading zero if necessary (e.g. 5 becomes "05"), and the time 
+  // was converted into string first since padStart only works on strings 
   const minutes = Math.floor(timeLeft / 60).toString().padStart(2, "0");
   const seconds = (timeLeft % 60).toString().padStart(2, "0");
 
@@ -364,13 +401,20 @@ export default function App() {
   // ========================
   function onMouseDown(e) {
     dragRef.current.isDragging = true;
+    //below two lines calculates how far inside the timer popup the user clicked, 
+    // so that when we move the mouse, we can keep the same relative 
+    // position of the cursor to the popup, making it feel like you 
+    // are dragging the popup from where you clicked rather than snapping
+    // the top-left corner to the cursor
     dragRef.current.offsetX = e.clientX - timerPos.x;
     dragRef.current.offsetY = e.clientY - timerPos.y;
   }
 
   function onMouseMove(e) {
-    if (!dragRef.current.isDragging) return;
+    if (!dragRef.current.isDragging) return; //if not dragging, do nothing
     setTimerPos({
+      // below two lines lets user drag timer while the point they grabbed stays 
+      //under the cursor 
       x: e.clientX - dragRef.current.offsetX,
       y: e.clientY - dragRef.current.offsetY
     });
@@ -381,36 +425,57 @@ export default function App() {
   }
 
   useEffect(() => {
+    //window.addEventListener("mousemove", onMouseMove) and 
+    // window.addEventListener("mouseup", onMouseUp) attach event listeners to the
+    //  whole window to track mouse movements and when the mouse button is released,
+    //  which allows the user to drag the timer popup around the screen smoothly,
+    //  even if their cursor moves quickly or goes outside the bounds of the popup
+    //  while dragging. The cleanup function  prevents memory leaks and unintended 
+    // behavior.
     window.addEventListener("mousemove", onMouseMove);
     window.addEventListener("mouseup", onMouseUp);
     return () => {
+      //cleanup function to remove event listeners when component unmounts
       window.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("mouseup", onMouseUp);
     };
-  }, []);
+  }, []); //dependency array [] means this effect runs only once on component 
+  // mount and cleanup on unmount
 
   // ========================
   // PROGRESS BAR LOGIC
   // ========================
+  
+  //calculates how many tasks are completed by filtering the tasks array to only 
+  // include tasks where completed is true
   const completedTasks = tasks.filter(t => t.completed).length;
 
   useEffect(() => {
+    //if all tasks are completed, reset the list after a short delay to allow 
+    // confetti to show
     if (tasks.length > 0 && completedTasks === tasks.length) {
       setTimeout(() => {
         setTasks([]);
         setTotalTasksEver(0);
       }, 500);
     }
-  }, [completedTasks, tasks.length]);
+  }, [completedTasks, tasks.length]); //effect runs when a task is completed or tasks 
+  //are added/removed 
 
+  //if tasks exist, use current task count, if tasks are cleared, use historical max
+  //since after reset, setTasks([]) makes tasks.length 0, but we want to keep 
+  // showing 100% progress until the user adds new tasks, so we use totalTasksEver 
+  // to remember how many tasks there were before the reset, and only reset that
+  //  when new tasks are added
   const totalTasks = tasks.length > 0 ? tasks.length : totalTasksEver;
   const progressPercent = totalTasks === 0 ? 0 : (completedTasks / totalTasks)*100;
 
   // ========================
   // BROWSER NOTIFICATIONS LOGIC
   // ========================
-  useEffect(() => {
-    if (!("Notification" in window)) return;
+  useEffect(() => { //runs when component loads or when tasks changes (due to [tasks])
+    //Notification is a built-in Web API provided by the browser  
+    if (!("Notification" in window)) return; //if not supported, do nothing
 
     if (Notification.permission !== "granted") {
       Notification.requestPermission();
@@ -419,12 +484,15 @@ export default function App() {
     const interval = setInterval(() => {
       const now = new Date();
       tasks.forEach(task => {
+        if (task.completed) return; //skip completed tasks
+        
         const due = new Date(task.deadline);
-        const diffMs = due - now;
-        const daysLeft = diffMs / (1000 * 60 * 60 * 24);
+        const diffMs = due - now; //milliseconds remaining until deadline
+        const daysLeft = diffMs / (1000 * 60 * 60 * 24); //difference in days between
+        //  now and deadline converted from milliseconds
 
-        const notified = notificationRef.current[task.id];
-        if (!notified) return;
+        const notified = notificationRef.current[task.id]; //get notification memory
+        if (!notified) return; //skip if missing (shouldn't happen)
 
         if (Notification.permission === "granted") {
           if (daysLeft < 2 && !notified.twoDays) {
@@ -440,9 +508,10 @@ export default function App() {
           }
         }
       });
-    }, 60000);
+    }, 60000); //checks every minute for tasks approaching their deadlines to 
+    // trigger notifications if needed
 
-    return () => clearInterval(interval);
+    return () => clearInterval(interval); //cleanup interval
   }, [tasks]);
 
   // ========================
@@ -450,31 +519,41 @@ export default function App() {
   // ========================
   return (
     <div style={{ 
-      padding: 20, 
-      minHeight: "100vh",
-      position: "relative",
-      overflow: "hidden", 
+      padding: 20, //added padding inside edges so content doesn't touch screen borders
+      minHeight: "100vh", //makes container at least 100% of the viewport height (full screen)
+      position: "relative", //allows children with position: absolute to be 
+      // positioned relative to this container as a reference    
+      overflow: "hidden", //hide anything that goes outside screen edges (so they 
+      //don't create scrollbars)
+      
       // ================= BACKGROUND IMAGE (COVER) =================
       backgroundImage: `url(${background})`, // uses imported PNG
       backgroundSize: "cover",         // makes image fill the screen properly
       backgroundPosition: "center",   // keeps the center of image always visible
-      backgroundRepeat: "no-repeat",        // prevents tiling
+      backgroundRepeat: "no-repeat",     // prevents tiling
     }}> 
 
-      <Fireflies /> {/*Animated fireflies in the background*/}
+      <Fireflies /> {/*Renders animated fireflies 
+      on top of the background image but behind UI elements, depending on z-index*/}
       
-      <div style={{ position: "relative", zIndex: 2 }}>
+        <div style={{ position: "relative", zIndex: 2 }}> 
+          {/*higher z-index = on top 
+          So now we have Layer 1 = background
+          Layer 2 = fireflies
+          Layer 3 = UI elements
+          */}
 
     {/*Title elements */}
+    {/*justifyContent control horizontal alignment, alignItems control verical */}
       <div style={{ display: "flex", justifyContent: "center", alignItems: "center"}}>
         <img 
           src={LeftBerry} 
-          alt="Left Berry" 
+          alt="Left Berry" //shown as an alternative when the image can't be displayed
           style={{ 
             width: "80px", 
             height: "auto",
             marginRight:20, 
-            marginTop:20,
+            marginTop: 20,
             animation: "berrySwingLeft 1.5s ease-in-out infinite",
             opacity: 0.8
             }} 
@@ -501,7 +580,14 @@ export default function App() {
           }} 
         />
       </div>
+
+      {/*addTask is a function from the parent component, onAdd is a prop that passes
+      the function down to the child component, AddTaskForm.   
+      AddTaskForm is a custom React component that renders a form for adding new 
+      tasks (defined near the bottom of the code) */}
       <AddTaskForm onAdd={addTask} />
+      
+      {/* Progress header UI */}
       <div style={{ marginTop: 0, position: "relative" }}>
         <h3 style={{fontFamily: "wizzta", fontSize: 38, color:"#000000d2"}}>
           Tasks Completed: {completedTasks} / {totalTasks === 0 ? 0 : totalTasks}
@@ -516,31 +602,47 @@ export default function App() {
               }} 
             />
         </h3>
-        <div style={{ height: 20, width: "100%", backgroundColor: "#f7efe9e4", borderRadius: 20, overflow: "hidden", position: "relative" }}>
+        
+        {/* Progress bar UI */}
+        <div style={{ height: 20, 
+                      width: "100%", 
+                      backgroundColor: "#f7efe9e4", 
+                      borderRadius: 20, 
+                      overflow: "hidden", 
+                      position: "relative" }}>
+          {/* Filled portion of progress bar*/}              
           <div style={{
             width: `${progressPercent}%`,
             height: "100%",
+            //line below creates a diagonal striped pattern using a linear gradient,
+            //  where the colors alternate every 25% to create the stripes
             background: "linear-gradient(45deg, #a8e58acf 25%, #73c954d7 50%, #a8e58ac8 75%)",
-            backgroundSize: "50px 50px",
+            backgroundSize: "50px 50px", // control size of pattern
             borderRadius: 10,
-            transition: "width 0.5s",
-            animation: "flow 1s linear infinite"
+            transition: "width 0.5s", //animation over 0.5 seconds when width changes
+            animation: "flow 1s linear infinite" //makes gradient moves continuously
           }} />
-          {sparkles.map(s => (
-            <div key={s.id} style={{
-              position: "absolute",
+          
+          {/* Sparkles on progress bar */}
+          {sparkles.map(s => ( //take each sparkle in the sparkles array and render 
+          // a small div for it with styles
+            <div key={s.id} //React needs key to uniquely identify each sparkle
+            style={{
+              position: "absolute", //removes it from normal layout flow to
+              //  position it freely within the progress bar container  
               width: 6,
               height: 6,
-              borderRadius: "50%",
+              borderRadius: "50%", //makes a tiny circle, along with width and 
+              // height lines above
               backgroundColor: "#fff",
-              left: `${s.left}%`,
-              top: `${s.top}px`,
+              left: `${s.left}%`, //horizontal position (% of bar width)
+              top: `${s.top}px`, //vertical position (px from top of bar)
               opacity: 0.9,
-              animation: "sparkle 0.8s ease-out"
+              animation: "sparkle 1s ease-out"
             }} />
           ))}
-        </div>
-      </div>
+        </div> {/*closes progress bar container*/} 
+      </div> {/*closes progress header container*/}
       
       <div style={{ marginTop: 20, textAlign: "center"}}>
         <h3 style={{fontFamily: "wizzta", fontSize: 37, color: "#000000e3"}}>🔥Min Weekly Focus Goal</h3>
