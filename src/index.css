@@ -1,3 +1,10 @@
+/* Lock base sizing so dev and production render identically */
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  font-size: 14px;   /* to change base size reference */
+}
+
 /* Remove the browser’s default white border */
 html, body, #root {
   margin: 0;
