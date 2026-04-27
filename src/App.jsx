@@ -217,6 +217,8 @@ export default function App() {
       setTimerRunning(false); //stop timer 
       setStreak(s => s + 1); //increase streak by 1, s is previous value of streak
       //update weekly focus data
+      
+      const currentMonday = getMonday(new Date()).toISOString();
       setWeeklyData(prev => { //prev +> {..} is a function passed into the setter 
       // that receives the previous state value (prev) and returns the new state 
       // value, used when new state depends on old state to ensure we are working
@@ -279,7 +281,7 @@ export default function App() {
     // task since it's deleted
   }
 
-  function startFocus(task, durationMinutes = 50) { //starts the focus timer for a 
+  function startFocus(task, durationMinutes = 0.1) { //starts the focus timer for a 
   // given task, default duration is 50 minutes
     setActiveTask(task); // set the task we are focusing on as the activeTask, 
     // which triggers the timer useEffect
