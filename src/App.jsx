@@ -281,8 +281,8 @@ export default function App() {
     // task since it's deleted
   }
 
-  function startFocus(task, durationMinutes = 0.1) { //starts the focus timer for a 
-  // given task, default duration is 50 minutes
+  function startFocus(task, durationMinutes = 50) { //starts the focus timer for a 
+  // given task, duration set to 50 minutes
     setActiveTask(task); // set the task we are focusing on as the activeTask, 
     // which triggers the timer useEffect
     setTimeLeft(durationMinutes * 60); //convert minutes to seconds for the timer
