@@ -485,7 +485,7 @@ export default function App() {
       const now = new Date();
       tasks.forEach(task => {
         if (task.completed) return; //skip completed tasks
-        
+
         const due = new Date(task.deadline);
         const diffMs = due - now; //milliseconds remaining until deadline
         const daysLeft = diffMs / (1000 * 60 * 60 * 24); //difference in days between
@@ -644,27 +644,83 @@ export default function App() {
         </div> {/*closes progress bar container*/} 
       </div> {/*closes progress header container*/}
       
+      {/* Weekly focus goal circular progress indicator UI */}
       <div style={{ marginTop: 20, textAlign: "center"}}>
-        <h3 style={{fontFamily: "wizzta", fontSize: 37, color: "#000000e3"}}>🔥Min Weekly Focus Goal</h3>
+        <h3 style={{
+          fontFamily: "wizzta", 
+          fontSize: 37, 
+          color: "#000000e3"}}>🔥Min Weekly Focus Goal</h3>
+        
+        {/* This part: 
         {(() => {
-          const goal = 10;
+          ...
+          return ( ... )
+        })()} 
+          is an IIFE (Immediately Invoked Function Expression) that means: 
+          "Run this JavaScript code right here and return JSX to render the progress 
+          circle based on the weekly focus data, and do it immediately 
+          when rendering this part of the UI"
+        */}
+        {(() => {
+          const goal = 10; //weekly target is 10 focus sessions minimum 
+          //progress ratio as a percentage, capped at 100% if they exceed the goal,
+          //  so we don't have the progress circle overflow 
           const percent = Math.min((weeklyData.count / goal) * 100, 100);
-          const radius = 60;
+          const radius = 60; 
           const circumference = 2 * Math.PI * radius;
+          // determines which part of the circle to fill based on progress
           const offset = circumference - (percent / 100) * circumference;
           return (
-            <svg width="160" height="160">
-              <circle cx="80" cy="80" r={radius} stroke="#f8f4f2ce" strokeWidth="12" fill="none" />
-              <circle cx="80" cy="80" r={radius} stroke="#faf6769d" strokeWidth="12" fill="none"
-                strokeDasharray={circumference} strokeDashoffset={offset} style={{ transition: "stroke-dashoffset 0.5s" }} />
-              <text x="50%" y="50%" textAnchor="middle" dy=".3em" fontSize="22" fill="#000000" style={{fontFamily: "'PixelWarden'", fontSize: 30}}>
-                {weeklyData.count} / {goal}
+            <svg width="160" height="160"> {/*drawing canvas*/}
+              
+              {/*Background circle */}
+              <circle 
+                //cx and cy set the center position of the circle, (0,0) being
+                //top left corner, x increases to the right and y increases 
+                //downwards
+                cx="80" 
+                cy="70" 
+                r={radius} 
+                stroke="#f8f4f2ce" 
+                strokeWidth="12" 
+                fill="none" 
+              />
+
+              {/*Filled circle portion*/}
+              <circle 
+                cx="80" 
+                cy="70" 
+                r={radius} 
+                stroke="#faf6769d" 
+                strokeWidth="12" 
+                fill="none"
+                strokeDasharray={circumference} //drawable length of this circle 
+                strokeDashoffset={offset} //fill part of the circle based on progress
+                //for smooth animation of the ring when progress changes 
+                //stroke-dashoffset is a built-in SVG/CSS property that controls 
+                style={{ transition: "stroke-dashoffset 0.5s" }} />
+              
+              <text //like a <p> or <span> in html but for SVGs, draws text inside 
+              //SVG canvas 
+                x="50%" 
+                y="45%" 
+                textAnchor="middle" //centers the text about the x axis
+                dy=".3em" //nudges text down slightly, em = relative to font size,
+                //.3em = small downward adjustment, so fine adjustment to visually
+                //center the text within the circle 
+                fontSize="22" 
+                fill="#000000" 
+                style={{fontFamily: "'PixelWarden'", fontSize: 30}}>
+                {/* Displays how many sessions completed compared to weekly goal*/}
+                {weeklyData.count} / {goal} 
               </text>
-            </svg>
+            </svg> //closes SVG canvas
           );
         })()}
       </div>
 
+      {/* Task list UI, maps over the sortedTasks array to render each task,
+      only renders tasks that are not completed (task.completed is false) */}
       <div style={{ marginTop: 20, fontFamily: "wizzta", fontSize: 30}}>
         {sortedTasks.map(task => (
           !task.completed && (
@@ -675,10 +731,15 @@ export default function App() {
             marginBottom: 10,
             backgroundColor: getPriorityColor(task.deadline),
             color: "#000000",
+            //Below lines create a flexbox layout for the task item, with space 
+            // between the task details on the left and the action buttons on the 
+            // right, and vertically center them within the task item container
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center"
           }}>
+            
+            {/* Left side of task item with name and deadline */}
             <div>
               <h3 style={{ margin: 0 }}>{task.name}</h3>
 
@@ -686,7 +747,9 @@ export default function App() {
                 <small>Deadline: {task.deadline}</small>
 
                 {new Date(task.deadline) < new Date() && (
-                  <span style={{
+                  <span style={{ //used span instead of div to put DEADLINE HAS 
+                  // PASSED on the same line as the deadline and style it separately
+                  //also span is good for adding a small piece of extra info 
                     color: "#ffffff",
                     fontSize: 20,
                     fontFamily: "wizzta"
@@ -695,22 +758,31 @@ export default function App() {
                   </span>
                 )}
               </div>
-            </div>
+            </div> {/*closes left side of task item*/}
+
+             {/* Right side of task item with action buttons */}
             <div>
-              <button onClick={() => startFocus(task)} style={buttonStyle("#fff1ab")}>Focus</button>
-              <button onClick={() => completeTask(task.id)} style={buttonStyle("#b1ffb1")}>Completed</button>
-              <button onClick={() => deleteTask(task.id)} style={buttonStyle("#fda78b")}>Delete</button>
-            </div>
-          </div>
+              <button onClick={() => startFocus(task)} 
+                      style={buttonStyle("#fff1ab")}>Focus</button>
+              <button onClick={() => completeTask(task.id)} 
+                      style={buttonStyle("#b1ffb1")}>Completed</button>
+              <button onClick={() => deleteTask(task.id)} 
+                      style={buttonStyle("#fda78b")}>Delete</button>
+            </div> {/*closes right side of task item*/}
+          </div> //closes task item container
           )
         ))}
-      </div>
+      </div>  {/*closes task list container*/}
 
+    {/* Focus timer popup UI, only rendered when there is an active task 
+    (activeTask is not null) */}
       {activeTask && (
-        //focus timer 
+        //focus timer UI
         <div
           style={{
-            position: "fixed",
+            position: "fixed", //position relative to the screen (viewport) so 
+            //it stays in the same place even when scrolling
+            //timerPos updates when we drag, React re-renders -> timer moves  
             top: timerPos.y,
             left: timerPos.x,
             backgroundColor: "#fff9bcdf",
@@ -718,24 +790,28 @@ export default function App() {
             borderRadius: 18,
             padding: 15,
             cursor: "grab",
-            zIndex: 1000
+            zIndex: 1000 //force timer to stay on top of everything else on the page
           }}
-          onMouseDown={onMouseDown}
+          onMouseDown={onMouseDown} //start dragging when timer is clicked and held
         >
-          <div style={{ position: "relative"}}> {/*relative positioning allows the stars
-            to be positioned absolutely within this container, so 
+          {/* Inner container for floating star and book sprites */}
+          <div style={{ position: "relative"}}> {/*relative positioning allows the 
+            stars to be positioned absolutely within this container, so 
             they move together when dragging the timer*/}
 
             <img
               src={Star}
               alt="Star"
               style={{
-                position: "absolute",
-                top: -28,
-                left: -37,
+                position: "absolute", //stars positioned relative to the timer container
+                top: -28, //how much the star is above the top edge of the timer 
+                // container
+                left: -37, //how much the star is to the left from the left edge 
+                // of the timer container
                 width: 40,
                 height: "auto",
-                pointerEvents: "none",
+                pointerEvents: "none", //allows clicks to pass through the star so 
+                // it doesn't interfere with dragging the timer (block mouse clicks)
                 animation: "floaty 3s ease-in-out infinite"
               }}
             />
@@ -763,45 +839,64 @@ export default function App() {
                 right: -65,
                 width: 90, 
                 height: 100,
-                overflow: "hidden",
+                overflow: "hidden", //hides the parts of the book sprite that go 
+                // outside this container, so we only see the animated book and not
+                //  the whole sprite sheet
                 pointerEvents: "none",
                 animation: "floaty 3.2s ease-in-out infinite"
               }}
             >
-              <div className="bookSprite" />
-            </div>
+              <div className="bookSprite" /> {/* This div uses the .bookSprite 
+              class defined in the style tag below to create an animated book 
+              sprite */}
+            </div> {/* closes book sprite container */}
 
-            <h3 style={{fontFamily: "wizzta", fontSize: 25, textAlign: "center"}}>FOCUSING...</h3>
-            <h2 style={{fontFamily: "wizzta", fontSize: 25, textAlign: "center"}}>{minutes}:{seconds}</h2>
+            <h3 style={{
+              fontFamily: "wizzta", 
+              fontSize: 25, 
+              textAlign: "center"}}>FOCUSING...</h3>
+            
+            <h2 style={{
+              fontFamily: "wizzta", 
+              fontSize: 25, 
+              textAlign: "center"}}>{minutes}:{seconds}</h2>
+            
+            {/* Timer control buttons */}
             <div>
               {timerRunning ? (
-                <button onClick={pauseTimer} style={buttonStyle("#ffa600dc")}>Pause</button>
+                <button onClick={pauseTimer} 
+                        style={buttonStyle("#ffa600dc")}>Pause</button>
               ) : (
-                <button onClick={() => setTimerRunning(true)} style={buttonStyle("#32cd32e8")}>Resume</button>
+                <button onClick={() => setTimerRunning(true)} 
+                        style={buttonStyle("#32cd32e8")}>Resume</button>
               )}
-              <button onClick={stopTimer} style={buttonStyle("#ff4400e2")}>Stop</button>
-            </div>
-          </div>
-        </div>
+              <button onClick={stopTimer} 
+                      style={buttonStyle("#ff4400e2")}>Stop</button>
+            </div> {/*closes button container*/}
+          </div> {/*closes inner container for floating star and book sprites*/}
+        </div> //closes focus timer popup
       )}
 
       {/*Animation effects*/} 
       <style>{`
         @keyframes flow {
+          /* Slides background to the right repeatedly */
           0% { background-position: 0 0; }
           100% { background-position: 50px 0; }
         }
         @keyframes sparkle {
+        /* Sparkle effect that makes the sparkles fade out and move upwards */
           0% { opacity: 1; transform: translateY(0) scale(1); }
-          50% { opacity: 0.8; transform: translateY(-10px) scale(1.3); }
+          50% { opacity: 0.8; transform: translateY(-10px) scale(1.3); } 
           100% { opacity: 0; transform: translateY(-20px) scale(0.5); }
         }
 
          /*  Berry gentle swing + breathing */
         @keyframes berrySwingLeft {
-          0% { transform: rotate(-6deg) scale(1); }
-          50% { transform: rotate(6deg) scale(1.1); }
-          100% { transform: rotate(-6deg) scale(1); }
+          0% { transform: rotate(-6deg) scale(1); } /* start slightly rotated left */
+          50% { transform: rotate(6deg) scale(1.1); } /* rotates to the right and 
+          slightly bigger */
+          100% { transform: rotate(-6deg) scale(1); } /* back to start */
         }
 
         @keyframes berrySwingRight {
@@ -821,10 +916,12 @@ export default function App() {
           width: 1280px;                
           height: 720px;                
           background-image: url(${catSprite});
-          background-repeat: no-repeat;
-          background-size: auto 100%;
-          animation: catRun 3s steps(44) infinite; /* <- frame count (there's 44 frames) */
-          transform: scale(0.15); /* shrink to 15% */
+          background-repeat: no-repeat; /* prevents tiling of the sprite sheet */
+          background-size: auto 100%; /* scales the background image to fit the 
+          height of the container, width is auto to maintain aspect ratio */
+          animation: catRun 3s steps(44) infinite; /* <- frame count (there's 44 
+          frames) */
+          transform: scale(0.15); /* shrink to 15% since sprite sheet too large */
           transform-origin: top left; 
         }
 
@@ -840,7 +937,8 @@ export default function App() {
           background-image: url(${book_sheet});
           background-repeat: no-repeat;
           background-size: auto 100%;
-          animation: bookRun 1.5s steps(8) infinite; /* <- frame count (there's 8 frames) */
+          animation: bookRun 1.5s steps(8) infinite; /* <- frame count (there's 8 
+          frames) */
           transform: scale(0.8); /* shrink to 80% */
           transform-origin: top left; 
         }
@@ -863,13 +961,14 @@ export default function App() {
           position: absolute;
           width: 6px;
           height: 6px;
-          border-radius: 50%;
-          background: radial-gradient(circle, #fff 0%, #fffbd3 30%, #fffabd 40%, transparent 80%);
+          border-radius: 50%; /*makes it a circle*/
+          background: radial-gradient(circle, #fff 0%, #fffbd3 30%, 
+          #fffabd 40%, transparent 80%);
           opacity: 0.8;
-          filter: blur(2px);
-          pointer-events: none;
+          filter: blur(2px); //enhances glow effect
+          pointer-events: none; /*to block mouse clicking */
           animation: floatFirefly linear infinite;
-          z-index: 1;
+          z-index: 1; /*above background but behind all other UI components*/ 
         }
 
         @keyframes floatFirefly {
@@ -877,16 +976,19 @@ export default function App() {
             transform: translateY(0px) translateX(0px);
           }
           to {
-            transform: translateY(-120vh) translateX(40px);
+          /*fireflies each move upward and slightly to the right, vh means viewport
+          height, and 120vh means it travels beyond the top of the screen*/
+            transform: translateY(-120vh) translateX(40px); 
           }
         }
 
       `}</style>
-    </div>
-  </div>
+    </div> {/* closes UI layer (all UI content)*/}
+  </div> // closes outer container (entire app layout wrapper)
   );
 }
 
+// create a function that takes a background color and returns a style object
 const buttonStyle = (bg) => ({
   backgroundColor: bg,
   color: "black",
@@ -894,7 +996,7 @@ const buttonStyle = (bg) => ({
   padding: "3px 10px",
   marginRight: 5,
   borderRadius: 7,
-  cursor: "pointer",
+  cursor: "pointer", //means "clickable"
   fontFamily: "wizzta",
   fontSize: 25
   
@@ -910,36 +1012,49 @@ const inputStyle = {
   fontFamily: "Wizard"
 };
 
-function AddTaskForm({ onAdd }) {
-  const [name, setName] = useState("");
-  const [deadline, setDeadline] = useState("");
+function AddTaskForm({ onAdd }) { //reusable component that takes function onAdd 
+  //from its parent (App), it collects input and sends it upward 
+  const [name, setName] = useState(""); //task name input 
+  const [deadline, setDeadline] = useState(""); //date input 
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!name || !deadline) return;
-    onAdd(name, deadline);
-    setName("");
+    e.preventDefault(); //stops page from refreshing 
+    if (!name || !deadline) return; //prevents empty tasks from being added 
+    onAdd(name, deadline); //sends data back to parent and App creates the task
+    //below two lines clears the form after submission 
+    setName(""); 
     setDeadline("");
   };
 
   return (
+    //layout wrapper
     <div style={{ 
       display: "flex", 
       justifyContent: "center", 
       alignItems: "center",
     }}>
-      <form onSubmit={handleSubmit} style={{ textAlign: "center", marginTop: 20, marginLeft: 70}}>
+      <form onSubmit={handleSubmit} //pressing enter or clicking button triggers 
+      // handleSubmit
+        style={{ 
+          textAlign: "center", 
+          marginTop: 20, 
+          marginLeft: 70}}>
+        
         <input
           style={inputStyle}
           type="text"
           placeholder="Task Name"
-          value={name}
-          onChange={e => setName(e.target.value)}
+          value={name} //React controls displayed text 
+          onChange={e => setName(e.target.value)} //event handler (run this function 
+          // whenever input changes) that updates state on every keystroke
+          //e = event object (React gives this automatically), React stores latest 
+          //input value (keystroke) in name, triggers re-renders then updates 
+          // value={name}
         />
 
         <input
           style={inputStyle}
-          type="date"
+          type="date" //browser gives a calendar UI 
           value={deadline}
           onChange={e => setDeadline(e.target.value)}
         />
