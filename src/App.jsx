@@ -152,8 +152,13 @@ export default function App() {
   //Ref for progress circle position 
   const progressCircleRef = useRef(null);
 
+  const timerPopupRef = useRef(null);
+
   // Draggable timer initial position state
-  const [timerPos, setTimerPos] = useState({ x: 650, y: 690 });
+  const [timerPos, setTimerPos] = useState({
+    x: window.innerWidth * 0.5 - 120,
+    y: window.innerHeight * 0.55
+});
 
   // Dragging state for timer popup
   const dragRef = useRef({ isDragging: false, offsetX: 0, offsetY: 0 });
@@ -399,30 +404,36 @@ export default function App() {
   const seconds = (timeLeft % 60).toString().padStart(2, "0");
 
   // ========================
-  // DRAGGABLE TIMER LOGIC
   // ========================
-  function onMouseDown(e) {
+  // DRAGGABLE TIMER LOGIC (Desktop + Mobile)
+  // ========================
+  function onPointerDown(e) {
     dragRef.current.isDragging = true;
-    //below two lines calculates how far inside the timer popup the user clicked, 
-    // so that when we move the mouse, we can keep the same relative 
-    // position of the cursor to the popup, making it feel like you 
-    // are dragging the popup from where you clicked rather than snapping
-    // the top-left corner to the cursor
+
     dragRef.current.offsetX = e.clientX - timerPos.x;
     dragRef.current.offsetY = e.clientY - timerPos.y;
   }
 
-  function onMouseMove(e) {
-    if (!dragRef.current.isDragging) return; //if not dragging, do nothing
+  function onPointerMove(e) {
+    if (!dragRef.current.isDragging) return;
+
+    const timerWidth = 260;
+    const timerHeight = 220;
+
+    let newX = e.clientX - dragRef.current.offsetX;
+    let newY = e.clientY - dragRef.current.offsetY;
+
+    // Prevent timer from leaving screen
+    newX = Math.max(0, Math.min(window.innerWidth - timerWidth, newX));
+    newY = Math.max(0, Math.min(window.innerHeight - timerHeight, newY));
+
     setTimerPos({
-      // below two lines lets user drag timer while the point they grabbed stays 
-      //under the cursor 
-      x: e.clientX - dragRef.current.offsetX,
-      y: e.clientY - dragRef.current.offsetY
+      x: newX,
+      y: newY
     });
   }
 
-  function onMouseUp() {
+  function onPointerUp() {
     dragRef.current.isDragging = false;
   }
 
@@ -434,12 +445,12 @@ export default function App() {
     //  even if their cursor moves quickly or goes outside the bounds of the popup
     //  while dragging. The cleanup function  prevents memory leaks and unintended 
     // behavior.
-    window.addEventListener("mousemove", onMouseMove);
-    window.addEventListener("mouseup", onMouseUp);
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointerup", onPointerUp);
     return () => {
       //cleanup function to remove event listeners when component unmounts
-      window.removeEventListener("mousemove", onMouseMove);
-      window.removeEventListener("mouseup", onMouseUp);
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerup", onPointerUp);
     };
   }, []); //dependency array [] means this effect runs only once on component 
   // mount and cleanup on unmount
@@ -527,6 +538,7 @@ export default function App() {
       // positioned relative to this container as a reference    
       overflow: "hidden", //hide anything that goes outside screen edges (so they 
       //don't create scrollbars)
+      touchAction: "manipulation",
       
       // ================= BACKGROUND IMAGE (COVER) =================
       backgroundImage: `url(${background})`, // uses imported PNG
@@ -552,7 +564,7 @@ export default function App() {
           src={LeftBerry} 
           alt="Left Berry" //shown as an alternative when the image can't be displayed
           style={{ 
-            width: "80px", 
+            width: "clamp(50px, 12vw, 80px)", 
             height: "auto",
             marginRight:20, 
             marginTop: 20,
@@ -564,7 +576,7 @@ export default function App() {
           src={TaskBerry} 
           alt="TaskBerry" 
           style={{ 
-            width: "320px", 
+            width: "clamp(150px, 60vw, 320px)", //responsive width that scales between 180px and 320px based on viewport width 
             height: "auto", 
             marginTop:30
             }} 
@@ -573,7 +585,7 @@ export default function App() {
           src={RightBerry} 
           alt="Right Berry" 
           style={{ 
-            width: "80px", 
+            width: "clamp(50px, 12vw, 80px)", 
             height: "auto", 
             marginLeft:20, 
             marginTop:20,
@@ -591,7 +603,7 @@ export default function App() {
       
       {/* Progress header UI */}
       <div style={{ marginTop: 0, position: "relative" }}>
-        <h3 style={{fontFamily: "wizzta", fontSize: 38, color:"#000000d2"}}>
+        <h3 style={{fontFamily: "wizzta", fontSize: "clamp(33px, 5vw, 38px)", color:"#000000d2"}}>
           Tasks Completed: {completedTasks} / {totalTasks === 0 ? 0 : totalTasks}
           <img 
             src={Star} 
@@ -650,7 +662,7 @@ export default function App() {
       <div style={{ marginTop: 20, textAlign: "center"}}>
         <h3 style={{
           fontFamily: "wizzta", 
-          fontSize: 37, 
+          fontSize: "clamp(30px, 5vw, 37px)", 
           color: "#000000e3"}}>🔥Min Weekly Focus Goal</h3>
         
         {/* This part: 
@@ -712,7 +724,7 @@ export default function App() {
                 //center the text within the circle 
                 fontSize="22" 
                 fill="#000000" 
-                style={{fontFamily: "'PixelWarden'", fontSize: 30}}>
+                style={{fontFamily: "'PixelWarden'", fontSize: "clamp(25px, 4vw, 30px)"}}>
                 {/* Displays how many sessions completed compared to weekly goal*/}
                 {weeklyData.count} / {goal} 
               </text>
@@ -723,7 +735,7 @@ export default function App() {
 
       {/* Task list UI, maps over the sortedTasks array to render each task,
       only renders tasks that are not completed (task.completed is false) */}
-      <div style={{ marginTop: 20, fontFamily: "wizzta", fontSize: 30}}>
+      <div style={{ marginTop: 20, fontFamily: "wizzta", fontSize: "clamp(25px, 3vw, 30px)", color: "#000000d2"}}>
         {sortedTasks.map(task => (
           !task.completed && (
           <div key={task.id} style={{
@@ -738,7 +750,11 @@ export default function App() {
             // right, and vertically center them within the task item container
             display: "flex",
             justifyContent: "space-between",
-            alignItems: "center"
+            alignItems: "center",
+            flexWrap: "wrap", //allows the content to wrap to the next line on 
+            // smaller screens
+            gap: 5 //adds space between items in the flex container, especially 
+            // when they wrap on smaller screens
           }}>
             
             {/* Left side of task item with name and deadline */}
@@ -753,7 +769,7 @@ export default function App() {
                   // PASSED on the same line as the deadline and style it separately
                   //also span is good for adding a small piece of extra info 
                     color: "#ffffff",
-                    fontSize: 20,
+                    fontSize: "clamp(19px, 3vw, 25px)",
                     fontFamily: "wizzta"
                   }}>
                     DEADLINE HAS PASSED !
@@ -781,6 +797,8 @@ export default function App() {
       {activeTask && (
         //focus timer UI
         <div
+          ref={timerPopupRef} //ref to access the DOM element of the timer popup 
+          // for dragging logic
           style={{
             position: "fixed", //position relative to the screen (viewport) so 
             //it stays in the same place even when scrolling
@@ -792,9 +810,15 @@ export default function App() {
             borderRadius: 18,
             padding: 15,
             cursor: "grab",
-            zIndex: 1000 //force timer to stay on top of everything else on the page
+            zIndex: 1000, //force timer to stay on top of everything else on the page
+            maxWidth: "90vw", //responsive max width so it doesn't get too big on 
+            // small screens
+            touchAction: "none", //prevents default touch behaviors like scrolling 
+            // when interacting with the timer on mobile devices
+            userSelect: "none" //prevents text selection while dragging the timer, 
+            // for better UX
           }}
-          onMouseDown={onMouseDown} //start dragging when timer is clicked and held
+          onPointerDown={onPointerDown} //start dragging when timer is clicked and held
         >
           {/* Inner container for floating star and book sprites */}
           <div style={{ position: "relative"}}> {/*relative positioning allows the 
@@ -855,7 +879,7 @@ export default function App() {
 
             <h3 style={{
               fontFamily: "wizzta", 
-              fontSize: 25, 
+              fontSize: "clamp(20px, 4vw, 25px)", 
               textAlign: "center"}}>FOCUSING...</h3>
             
             <h2 style={{
@@ -1000,8 +1024,8 @@ const buttonStyle = (bg) => ({
   borderRadius: 7,
   cursor: "pointer", //means "clickable"
   fontFamily: "wizzta",
-  fontSize: 25
-  
+  fontSize: "clamp(18px, 3vw, 25px)", //responsive font size that scales between 14px and 25px based on viewport width
+  touchAction: "manipulation", //improves responsiveness on touch devices by disabling the default 300ms delay after tapping
 });
 
 const inputStyle = {
@@ -1009,7 +1033,7 @@ const inputStyle = {
   marginRight: 10,
   borderRadius: 8,
   border: "1.5 px solid #000000",
-  fontSize: 15,
+  fontSize: "clamp(14px, 3vw, 15px)",
   backgroundColor: "#fffdf6",
   fontFamily: "Wizard"
 };
@@ -1065,7 +1089,7 @@ function AddTaskForm({ onAdd }) { //reusable component that takes function onAdd
       </form>
         
         {/* Cat sprite */} 
-        <div style={{ width: 100, height: 100 }}>
+        <div style={{ width: "clamp(180px, 10vw, 100px)", height: "clamp(70px, 10vh, 100px)" }}>
           <div className="catSprite" />
         </div>
       </div>
