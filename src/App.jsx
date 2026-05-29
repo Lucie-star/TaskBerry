@@ -410,22 +410,29 @@ export default function App() {
   function onPointerDown(e) {
     dragRef.current.isDragging = true;
 
-    dragRef.current.offsetX = e.clientX - timerPos.x;
-    dragRef.current.offsetY = e.clientY - timerPos.y;
+    const rect = timerPopupRef.current.getBoundingClientRect();
+
+    dragRef.current.offsetX = e.clientX - rect.left;
+    dragRef.current.offsetY = e.clientY - rect.top;
   }
 
   function onPointerMove(e) {
     if (!dragRef.current.isDragging) return;
 
-    const timerWidth = 260;
-    const timerHeight = 220;
+    const popup = timerPopupRef.current;
+    if (!popup) return;
+
+    const rect = popup.getBoundingClientRect();
 
     let newX = e.clientX - dragRef.current.offsetX;
     let newY = e.clientY - dragRef.current.offsetY;
 
-    // Prevent timer from leaving screen
-    newX = Math.max(0, Math.min(window.innerWidth - timerWidth, newX));
-    newY = Math.max(0, Math.min(window.innerHeight - timerHeight, newY));
+    // IMPORTANT FIX: use actual rendered size
+    const width = rect.width;
+    const height = rect.height;
+
+    newX = Math.max(0, Math.min(window.innerWidth - width, newX));
+    newY = Math.max(0, Math.min(window.innerHeight - height, newY));
 
     setTimerPos({
       x: newX,
