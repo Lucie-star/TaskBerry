@@ -946,21 +946,23 @@ export default function App() {
 
         /* ===== Cat sprite animation ===== */
         .catSprite {
-          width: 1280px;                
-          height: 720px;                
+          width: 180px;
+          height: 100px;
+
           background-image: url(${catSprite});
-          background-repeat: no-repeat; /* prevents tiling of the sprite sheet */
-          background-size: auto 100%; /* scales the background image to fit the 
-          height of the container, width is auto to maintain aspect ratio */
-          animation: catRun 3s steps(44) infinite; /* <- frame count (there's 44 
-          frames) */
-          transform: scale(0.15); /* shrink to 15% since sprite sheet too large */
-          transform-origin: top left; 
+          background-repeat: no-repeat;
+
+          /* IMPORTANT: remove auto scaling */
+          background-size: calc(180px * 44) 100px;
+
+          animation: catRun 3s steps(44) infinite;
+
+          image-rendering: pixelated;
         }
 
         @keyframes catRun {
           from { background-position: 0 0; }
-          to { background-position: -56320px 0; } /* frameWidth × frameCount */
+          to { background-position: -7920px 0; } /* frameWidth × frameCount, 180px * 44 frames = 7920 total width */
         }
 
         /* ===== Book sheet animation ===== */
@@ -1040,65 +1042,107 @@ const inputStyle = {
   marginRight: 10,
   borderRadius: 8,
   border: "1.5 px solid #000000",
-  fontSize: "clamp(14px, 3vw, 15px)",
+  fontSize: "clamp(12px, 3vw, 15px)",
   backgroundColor: "#fffdf6",
   fontFamily: "Wizard"
 };
 
-function AddTaskForm({ onAdd }) { //reusable component that takes function onAdd 
-  //from its parent (App), it collects input and sends it upward 
-  const [name, setName] = useState(""); //task name input 
-  const [deadline, setDeadline] = useState(""); //date input 
+function AddTaskForm({ onAdd }) {
+  const [name, setName] = useState("");
+  const [deadline, setDeadline] = useState("");
+
+  const [isMobile, setIsMobile] = useState(
+    window.innerWidth < 600
+  );
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 600);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const handleSubmit = (e) => {
-    e.preventDefault(); //stops page from refreshing 
-    if (!name || !deadline) return; //prevents empty tasks from being added 
-    onAdd(name, deadline); //sends data back to parent and App creates the task
-    //below two lines clears the form after submission 
-    setName(""); 
+    e.preventDefault();
+    if (!name || !deadline) return;
+
+    onAdd(name, deadline);
+    setName("");
     setDeadline("");
   };
 
   return (
-    //layout wrapper
-    <div style={{ 
-      display: "flex", 
-      justifyContent: "center", 
-      alignItems: "center",
-    }}>
-      <form onSubmit={handleSubmit} //pressing enter or clicking button triggers 
-      // handleSubmit
-        style={{ 
-          textAlign: "center", 
-          marginTop: 20, 
-          marginLeft: 70}}>
-        
-        <input
-          style={inputStyle}
-          type="text"
-          placeholder="Task Name"
-          value={name} //React controls displayed text 
-          onChange={e => setName(e.target.value)} //event handler (run this function 
-          // whenever input changes) that updates state on every keystroke
-          //e = event object (React gives this automatically), React stores latest 
-          //input value (keystroke) in name, triggers re-renders then updates 
-          // value={name}
-        />
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        marginTop: 20,
+        padding: "0 10px"
+      }}
+    >
+      {/* responsive container */}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: isMobile ? "column" : "row",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 12,
+          maxWidth: "100%",
+        }}
+      >
+        {/* FORM */}
+        <form
+          onSubmit={handleSubmit}
+          style={{
+            display: "flex",
+            flexDirection: isMobile ? "column" : "row",
+            gap: 10,
+            alignItems: "center",
+            justifyContent: "center",
+            textAlign: "center",
+            width: isMobile ? "100%" : "auto"
+          }}
+        >
+          <input
+            style={{ ...inputStyle, width: isMobile ? "100%" : "auto" }}
+            type="text"
+            placeholder="Task Name"
+            value={name}
+            onChange={e => setName(e.target.value)}
+          />
 
-        <input
-          style={inputStyle}
-          type="date" //browser gives a calendar UI 
-          value={deadline}
-          onChange={e => setDeadline(e.target.value)}
-        />
-        
-        <button type="submit" style={buttonStyle("#f3feb0")}>Add Task</button>
-      </form>
-        
-        {/* Cat sprite */} 
-        <div style={{ width: "clamp(180px, 10vw, 100px)", height: "clamp(70px, 10vh, 100px)" }}>
+          <input
+            style={{ ...inputStyle, width: isMobile ? "100%" : "auto" }}
+            type="date"
+            value={deadline}
+            onChange={e => setDeadline(e.target.value)}
+          />
+
+          <button
+            type="submit"
+            style={buttonStyle("#f3feb0")}
+          >
+            Add Task
+          </button>
+        </form>
+
+        {/* CAT */}
+        <div
+          style={{
+            flexShrink: 0,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            width: isMobile ? "182px" : "120px",
+            height: "120px",
+          }}
+        >
           <div className="catSprite" />
         </div>
       </div>
+    </div>
   );
 }
